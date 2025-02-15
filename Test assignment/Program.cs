@@ -288,7 +288,7 @@ class Program
         Console.Write("Введите дату для экспорта (например, 2025-03-15): ");
         if (DateTime.TryParseExact(Console.ReadLine(), "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date))
         {
-            Console.Write("Введите путь и имя файла для экспорта: ");
+            Console.Write("Введите путь и имя файла для экспорта (например, C:\\Users\\AMoralt\\RiderProjects\\Test assignment\\Test assignment\\Program.txt): ");
             string filePath = Console.ReadLine() ?? string.Empty;
 
             if (_meetingManager != null)
