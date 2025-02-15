@@ -129,17 +129,6 @@ public class MeetingManager
             .Where(m => !m.IsNotified && now >= m.ReminderTime && now < m.StartTime)
             .ToList();
     }
-    /// <summary>
-    /// Проверяет, пересекается ли указанная встреча с уже запланированными.
-    /// Исключая встречу с id excludeMeetingId (используется при обновлении).
-    /// </summary>
-    private bool HasOverlap(Meeting meeting, int excludeMeetingId = 0)
-    {
-        return _meetings.Any(m =>
-            m.Id != excludeMeetingId &&
-            meeting.StartTime < m.EndTime &&
-            meeting.EndTime > m.StartTime);
-    }
     
     /// <summary>
     /// Экспортирует встречи за выбранный день в текстовый файл.
@@ -171,5 +160,20 @@ public class MeetingManager
             error = ex.Message;
             return false;
         }
+    }
+    public List<Meeting> GetAllMeetings()
+    {
+        return _meetings.OrderBy(m => m.StartTime).ToList();
+    }
+    /// <summary>
+    /// Проверяет, пересекается ли указанная встреча с уже запланированными.
+    /// Исключая встречу с id excludeMeetingId (используется при обновлении).
+    /// </summary>
+    private bool HasOverlap(Meeting meeting, int excludeMeetingId = 0)
+    {
+        return _meetings.Any(m =>
+            m.Id != excludeMeetingId &&
+            meeting.StartTime < m.EndTime &&
+            meeting.EndTime > m.StartTime);
     }
 }

@@ -25,7 +25,8 @@ class Program
             Console.WriteLine("3. Удалить встречу");
             Console.WriteLine("4. Просмотр встреч на день");
             Console.WriteLine("5. Экспорт встреч на день в текстовый файл");
-            Console.WriteLine("6. Выход");
+            Console.WriteLine("6. Вывод всех существующих встреч");
+            Console.WriteLine("7. Выход");
             Console.Write("Выберите опцию: ");
 
             switch (Console.ReadLine())
@@ -40,12 +41,15 @@ class Program
                     DeleteMeeting();
                     break;
                 case "4":
-                    ViewMeetings();
+                    ViewMeetingsByDate();
                     break;
                 case "5":
                     ExportMeetings();
                     break;
                 case "6":
+                    ViewAllMeetings();
+                    break;
+                case "7":
                     exit = true;
                     break;
                 default:
@@ -143,6 +147,7 @@ class Program
                 {
                     try
                     {
+                        Console.WriteLine("Для пропуска ввода параметра необходимо нажать Enter. ");
                         Console.Write($"Заголовок ({meeting.Title}): ");
                         string title = Console.ReadLine() ?? string.Empty;
                         if (!string.IsNullOrWhiteSpace(title))
@@ -217,7 +222,7 @@ class Program
         Console.ReadKey();
     }
 
-    private static void ViewMeetings()
+    private static void ViewMeetingsByDate()
     {
         Console.Clear();
         Console.WriteLine("=== Просмотр встреч ===");
@@ -247,6 +252,34 @@ class Program
         Console.WriteLine("Нажмите любую клавишу для возврата в меню...");
         Console.ReadKey();
     }
+    private static void ViewAllMeetings()
+    {
+        Console.Clear();
+        Console.WriteLine("=== Все встречи ===");
+
+        if (_meetingManager != null)
+        {
+            var meetings = _meetingManager.GetAllMeetings();
+            if (meetings == null || meetings.Count == 0)
+            {
+                Console.WriteLine("Нет встреч для отображения.");
+            }
+            else
+            {
+                foreach (var meeting in meetings)
+                {
+                    Console.WriteLine($"ID: {meeting.Id} | Заголовок: {meeting.Title} | " +
+                                      $"Начало: {meeting.StartTime:yyyy-MM-dd HH:mm} | " +
+                                      $"Окончание: {meeting.EndTime:yyyy-MM-dd HH:mm} | " +
+                                      $"Напоминание за: {meeting.ReminderBefore.TotalMinutes} мин.");
+                }
+            }
+        }
+
+        Console.WriteLine("Нажмите любую клавишу для возврата в меню...");
+        Console.ReadKey();
+    }
+
 
     private static void ExportMeetings()
     {
@@ -280,7 +313,6 @@ class Program
     // Метод, вызываемый таймером для проверки напоминаний по встречам.
     private static void CheckReminders(object? state)
     {
-        Console.WriteLine("CheckReminders");
         // Получаем список встреч, у которых наступило время напоминания
         if (_meetingManager != null)
         {
