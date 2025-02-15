@@ -140,4 +140,36 @@ public class MeetingManager
             meeting.StartTime < m.EndTime &&
             meeting.EndTime > m.StartTime);
     }
+    
+    /// <summary>
+    /// Экспортирует встречи за выбранный день в текстовый файл.
+    /// </summary>
+    public bool ExportMeetings(DateTime date, string filePath, out string error)
+    {
+        error = string.Empty;
+        var meetings = GetMeetingsByDate(date);
+        try
+        {
+            using (StreamWriter writer = new StreamWriter(filePath))
+            {
+                writer.WriteLine($"Встречи на {date:yyyy-MM-dd}:");
+                writer.WriteLine(new string('-', 40));
+                foreach (var meeting in meetings)
+                {
+                    writer.WriteLine($"ID: {meeting.Id}");
+                    writer.WriteLine($"Заголовок: {meeting.Title}");
+                    writer.WriteLine($"Начало: {meeting.StartTime:yyyy-MM-dd HH:mm}");
+                    writer.WriteLine($"Окончание: {meeting.EndTime:yyyy-MM-dd HH:mm}");
+                    writer.WriteLine($"Напоминание за: {meeting.ReminderBefore.TotalMinutes} мин.");
+                    writer.WriteLine(new string('-', 40));
+                }
+            }
+            return true;
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+            return false;
+        }
+    }
 }

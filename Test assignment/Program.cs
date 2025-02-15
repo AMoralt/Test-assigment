@@ -250,7 +250,32 @@ class Program
 
     private static void ExportMeetings()
     {
-    
+        Console.Clear();
+        Console.WriteLine("=== Экспорт встреч ===");
+        Console.Write("Введите дату для экспорта (например, 2025-03-15): ");
+        if (DateTime.TryParseExact(Console.ReadLine(), "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date))
+        {
+            Console.Write("Введите путь и имя файла для экспорта: ");
+            string filePath = Console.ReadLine() ?? string.Empty;
+
+            if (_meetingManager != null)
+            {
+                if (_meetingManager.ExportMeetings(date, filePath, out string error))
+                {
+                    Console.WriteLine("Экспорт успешно выполнен.");
+                }
+                else
+                {
+                    Console.WriteLine($"Ошибка экспорта: {error}");
+                }
+            }
+        }
+        else
+        {
+            Console.WriteLine("Неверный формат даты.");
+        }
+        Console.WriteLine("Нажмите любую клавишу для возврата в меню...");
+        Console.ReadKey();
     }
     // Метод, вызываемый таймером для проверки напоминаний по встречам.
     private static void CheckReminders(object? state)
