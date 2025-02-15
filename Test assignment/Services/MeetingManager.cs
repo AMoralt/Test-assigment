@@ -4,12 +4,7 @@ namespace Test_assignment.Services;
 
 public class MeetingManager
 {
-    private readonly List<Meeting> _meetings;
-
-    public MeetingManager()
-    {
-        _meetings = new List<Meeting>();
-    }
+    private readonly List<Meeting> _meetings = new List<Meeting>();
 
     /// <summary>
     /// Фабричный метод для создания встречи.
@@ -63,6 +58,17 @@ public class MeetingManager
         return _meetings
             .Where(m => m.StartTime.Date == date.Date)
             .OrderBy(m => m.StartTime)
+            .ToList();
+    }
+    
+    /// <summary>
+    /// Возвращает список встреч, для которых наступило время напоминания и напоминание ещё не было выведено.
+    /// </summary>
+    public List<Meeting> GetDueReminders()
+    {
+        DateTime now = DateTime.Now;
+        return _meetings
+            .Where(m => !m.IsNotified && now >= m.ReminderTime && now < m.StartTime)
             .ToList();
     }
 }
