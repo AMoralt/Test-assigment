@@ -61,37 +61,63 @@ class Program
         Console.Clear();
         Console.WriteLine("=== Добавление встречи ===");
 
-        try
+        // Запрос заголовка встречи
+        string title;
+        while (true)
         {
             Console.Write("Введите заголовок встречи: ");
-            string title = Console.ReadLine() ?? string.Empty;
-
-            Console.Write("Введите дату и время начала (например, 2025-03-15 14:00): ");
-            DateTime startTime = DateTime.ParseExact(Console.ReadLine() ?? string.Empty, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
-
-            Console.Write("Введите дату и время окончания (например, 2025-03-15 15:00): ");
-            DateTime endTime = DateTime.ParseExact(Console.ReadLine() ?? string.Empty, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
-
-            Console.Write("Введите время напоминания (в минутах до начала встречи): ");
-            int reminderMinutes = int.Parse(Console.ReadLine() ?? string.Empty);
-
-            if (_meetingManager != null)
-            {
-                var meeting = _meetingManager.CreateMeeting(title, startTime, endTime, TimeSpan.FromMinutes(reminderMinutes));
-
-                if (_meetingManager.AddMeeting(meeting, out string error))
-                {
-                    Console.WriteLine("Встреча успешно добавлена.");
-                }
-                else
-                {
-                    Console.WriteLine($"Ошибка: {error}");
-                }
-            }
+            title = Console.ReadLine() ?? string.Empty;
+            if (!string.IsNullOrWhiteSpace(title))
+                break;
+            Console.WriteLine("Заголовок не может быть пустым. Попробуйте снова.");
         }
-        catch (Exception ex)
+
+        // Запрос даты и времени начала
+        DateTime startTime;
+        while (true)
         {
-            Console.WriteLine($"Ошибка ввода данных: {ex.Message}");
+            Console.Write("Введите дату и время начала (например, 2025-03-15 14:00): ");
+            string input = Console.ReadLine() ?? string.Empty;
+            if (DateTime.TryParseExact(input, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out startTime))
+                break;
+            Console.WriteLine("Неверный формат даты и времени. Попробуйте снова.");
+        }
+
+        // Запрос даты и времени окончания
+        DateTime endTime;
+        while (true)
+        {
+            Console.Write("Введите дату и время окончания (например, 2025-03-15 15:00): ");
+            string input = Console.ReadLine() ?? string.Empty;
+            if (DateTime.TryParseExact(input, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out endTime))
+                break;
+            Console.WriteLine("Неверный формат даты и времени. Попробуйте снова.");
+        }
+
+        // Запрос времени напоминания (в минутах)
+        int reminderMinutes;
+        while (true)
+        {
+            Console.Write("Введите время напоминания (в минутах до начала встречи): ");
+            string input = Console.ReadLine() ?? string.Empty;
+            if (int.TryParse(input, out reminderMinutes))
+                break;
+            Console.WriteLine("Неверный формат числа. Попробуйте снова.");
+        }
+
+        // Создаем и пытаемся добавить встречу
+        if (_meetingManager != null)
+        {
+            var meeting = _meetingManager.CreateMeeting(title, startTime, endTime, TimeSpan.FromMinutes(reminderMinutes));
+
+            if (_meetingManager.AddMeeting(meeting, out string error))
+            {
+                Console.WriteLine("Встреча успешно добавлена.");
+            }
+            else
+            {
+                Console.WriteLine($"Ошибка: {error}");
+            }
         }
 
         Console.WriteLine("Нажмите любую клавишу для возврата в меню...");
@@ -100,7 +126,69 @@ class Program
 
     private static void EditMeeting()
     {
-    
+        Console.Clear();
+        Console.WriteLine("=== Изменение встречи ===");
+
+        Console.Write("Введите идентификатор встречи: ");
+        if (int.TryParse(Console.ReadLine(), out int meetingId))
+        {
+            if (_meetingManager != null)
+            {
+                var meeting = _meetingManager.GetMeetingById(meetingId);
+                if (meeting == null)
+                {
+                    Console.WriteLine("Встреча не найдена.");
+                }
+                else
+                {
+                    try
+                    {
+                        Console.Write($"Заголовок ({meeting.Title}): ");
+                        string title = Console.ReadLine() ?? string.Empty;
+                        if (!string.IsNullOrWhiteSpace(title))
+                            meeting.Title = title;
+
+                        Console.Write($"Дата и время начала ({meeting.StartTime:yyyy-MM-dd HH:mm}): ");
+                        string startInput = Console.ReadLine() ?? string.Empty;
+                        if (!string.IsNullOrWhiteSpace(startInput))
+                            meeting.StartTime = DateTime.ParseExact(startInput, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+
+                        Console.Write($"Дата и время окончания ({meeting.EndTime:yyyy-MM-dd HH:mm}): ");
+                        string endInput = Console.ReadLine() ?? string.Empty;
+                        if (!string.IsNullOrWhiteSpace(endInput))
+                            meeting.EndTime = DateTime.ParseExact(endInput, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+
+                        Console.Write($"Время напоминания в минутах ({meeting.ReminderBefore.TotalMinutes}): ");
+                        string reminderInput = Console.ReadLine() ?? string.Empty;
+                        if (!string.IsNullOrWhiteSpace(reminderInput))
+                            meeting.ReminderBefore = TimeSpan.FromMinutes(int.Parse(reminderInput));
+
+                        // Сброс флага уведомления при изменении встречи
+                        meeting.IsNotified = false;
+
+                        if (_meetingManager.UpdateMeeting(meeting, out string error))
+                        {
+                            Console.WriteLine("Встреча успешно обновлена.");
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Ошибка: {error}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Ошибка ввода данных: {ex.Message}");
+                    }
+                }
+            }
+        }
+        else
+        {
+            Console.WriteLine("Неверный идентификатор.");
+        }
+
+        Console.WriteLine("Нажмите любую клавишу для возврата в меню...");
+        Console.ReadKey();      
     }
 
     private static void DeleteMeeting()
@@ -167,6 +255,7 @@ class Program
     // Метод, вызываемый таймером для проверки напоминаний по встречам.
     private static void CheckReminders(object? state)
     {
+        Console.WriteLine("CheckReminders");
         // Получаем список встреч, у которых наступило время напоминания
         if (_meetingManager != null)
         {
