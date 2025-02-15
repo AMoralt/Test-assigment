@@ -21,6 +21,26 @@ public class MeetingManager
     {
         error = string.Empty;
         
+        // Проверка: встреча должна начинаться в будущем
+        if (meeting.StartTime <= DateTime.Now)
+        {
+            error = "Встреча должна планироваться на будущее время.";
+            return false;
+        }
+
+        if (meeting.EndTime <= meeting.StartTime)
+        {
+            error = "Время окончания должно быть позже времени начала.";
+            return false;
+        }
+
+        if (HasOverlap(meeting))
+        {
+            error = "Встреча пересекается с уже запланированными встречами.";
+            return false;
+        }
+
+        _meetings.Add(meeting);
         return true;
     }
 
@@ -30,6 +50,39 @@ public class MeetingManager
     public bool UpdateMeeting(Meeting updatedMeeting, out string error)
     {
         error = string.Empty;
+        var existing = _meetings.FirstOrDefault(m => m.Id == updatedMeeting.Id);
+        if (existing == null)
+        {
+            error = "Встреча не найдена.";
+            return false;
+        }
+
+        // Проверка: встреча должна начинаться в будущем
+        if (updatedMeeting.StartTime <= DateTime.Now)
+        {
+            error = "Встреча должна планироваться на будущее время.";
+            return false;
+        }
+
+        if (updatedMeeting.EndTime <= updatedMeeting.StartTime)
+        {
+            error = "Время окончания должно быть позже времени начала.";
+            return false;
+        }
+
+        // Исключаем саму встречу при проверке пересечений
+        if (HasOverlap(updatedMeeting, updatedMeeting.Id))
+        {
+            error = "Изменения приводят к пересечению с другими встречами.";
+            return false;
+        }
+
+        // Обновляем данные
+        existing.Title = updatedMeeting.Title;
+        existing.StartTime = updatedMeeting.StartTime;
+        existing.EndTime = updatedMeeting.EndTime;
+        existing.ReminderBefore = updatedMeeting.ReminderBefore;
+        existing.IsNotified = false;
 
         return true;
     }
@@ -39,6 +92,11 @@ public class MeetingManager
     /// </summary>
     public bool DeleteMeeting(int meetingId)
     {
+        var meeting = _meetings.FirstOrDefault(m => m.Id == meetingId);
+        if (meeting == null)
+            return false;
+
+        _meetings.Remove(meeting);
         return true;
     }
 
@@ -70,5 +128,16 @@ public class MeetingManager
         return _meetings
             .Where(m => !m.IsNotified && now >= m.ReminderTime && now < m.StartTime)
             .ToList();
+    }
+    /// <summary>
+    /// Проверяет, пересекается ли указанная встреча с уже запланированными.
+    /// Исключая встречу с id excludeMeetingId (используется при обновлении).
+    /// </summary>
+    private bool HasOverlap(Meeting meeting, int excludeMeetingId = 0)
+    {
+        return _meetings.Any(m =>
+            m.Id != excludeMeetingId &&
+            meeting.StartTime < m.EndTime &&
+            meeting.EndTime > m.StartTime);
     }
 }
