@@ -15,19 +15,20 @@
 В ходе выполнения задания были подготовлены четыре скриншота (примеры интерфейса):
 
 1. **photo-1.png**  
-   ![photo-1](photo-1.png)  
+   <img src="photo-1.png" alt="photo-1" width="300" />  
    *Окно с общими данными*  
 
 2. **photo-2.png**  
-   ![photo-2](photo-2.png)  
+   <img src="photo-2.png" alt="photo-2" width="300" />
    *Окно с адресами*  
 
 3. **photo-3.png**  
-   ![photo-3](photo-3.png)  
+   <img src="photo-3.png" alt="photo-3" width="300" />  
    *Окно с историей мест работы*  
 
 4. **photo-4.png**  
-   ![photo-4](photo-4.png)  
+   <img src="photo-4.png" alt="photo-4" width="300" />
+
    *Окно с составом семьи*  
 
 

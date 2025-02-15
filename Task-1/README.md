@@ -3,8 +3,6 @@
 ## Описание задачи
 Задание посвящено практической работе с языком SQL. Необходимо выбрать один из предложенных вариантов и выполнить соответствующие подзадания.
 
-**Выбранный вариант:** Вариант 2
-
 ## Проверяемые навыки
 - Написание SQL-запросов
 - Логическое мышление и способность составлять алгоритмы решения
@@ -23,10 +21,12 @@ FROM Sales AS sa
 INNER JOIN Sellers AS s ON sa.IDSel = s.ID
 WHERE sa.Date BETWEEN '2013-10-01' AND '2013-10-07'
 GROUP BY s.Surname, s.Name
-ORDER BY s.Surname, s.Name;```
+ORDER BY s.Surname, s.Name;
+```
 
 ### Задание 2
-```;WITH SalesByEmployee AS (
+```sql
+;WITH SalesByEmployee AS (
     -- Агрегация продаж по продукту и сотруднику за период 01.10.2013 - 07.10.2013
     SELECT 
         IDProd, 
@@ -61,5 +61,6 @@ INNER JOIN TotalSalesByProduct tsp ON sbe.IDProd = tsp.IDProd
 INNER JOIN Products p ON sbe.IDProd = p.ID
 INNER JOIN Sellers s ON sbe.IDSel = s.ID
 INNER JOIN ArrivalsByProduct abp ON p.ID = abp.IDProd
-ORDER BY p.Name, s.Surname, s.Name;```
+ORDER BY p.Name, s.Surname, s.Name;
+```
 
